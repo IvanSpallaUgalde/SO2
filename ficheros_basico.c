@@ -388,3 +388,77 @@ int reservar_inodo(unsigned char tipo, unsigned char permisos)
         
     return posInodoReservado;    
 }
+
+//Función auxiliar para obtener el rango de punteros en el que se sitúa un bloque lógico
+int obtener_nRangoBL(struct inodo *inodo, unsigned int nbloogico, unsigned int *ptr)
+{
+    if (nbloogico<DIRECTOS)
+    {
+        ptr=inodo->punterosDirectos[nbloogico];
+        return 0;
+    }else{
+    if (nbloogico<INDIRECTOS0)
+    {
+        ptr=inodo->punterosDirectos[0];
+        return 1; 
+    }
+    
+    }else{
+    if (nbloogico<INDIRECTOS1)
+    {
+        ptr=inodo->punterosDirectos[1];
+        return 2; 
+    }
+    }else{
+    if (nbloogico<INDIRECTOS2)
+    {
+        ptr=inodo->punterosDirectos[2];
+        return 3; 
+    }
+    }else{
+        ptr=0;
+        //MENSAJE DE ERROR
+        return FALLO;
+    }
+}
+
+int obtener_indice(unsigned int nblogico, int nivel_punteros)
+{   //nblogico<DIRECTOS
+    if (nblogico<DIRECTOS)
+    {
+        return nblogico;
+    }else{
+    //nblogico<INDIRECTOS0
+    if (nblogico<INDIRECTOS0)
+    {
+        return nblogico-DIRECTOS;
+    }
+    }else{
+    //nblogico<INDIRECTOS1
+    if (nblogico<INDIRECTOS1)
+    {
+        if (nivel_punteros==2){return (nblogico - INDIRECTOS0) / NPUNTEROS;}
+        else
+        {
+        if (nivel_punteros==1){return (nblogico - INDIRECTOS0) % NPUNTEROS;} 
+        }
+    }
+    }else{
+    //nblogico<INDIRECTOS2
+    if (nblogico<INDIRECTOS2)
+    {
+        if (nivel_punteros==3){return (nblogico - INDIRECTOS1) / (NPUNTEROS * NPUNTEROS);}
+        else
+        {
+            if (nivel_punteros==2){return  ((nblogico - INDIRECTOS1) % (NPUNTEROS * NPUNTEROS)) / NPUNTEROS;} 
+        }
+        else
+        {
+            if (nivel_punteros==1){return ((nblogico - INDIRECTOS1) % (NPUNTEROS * NPUNTEROS)) % NPUNTEROS;}
+        }
+    }
+    }
+
+
+    
+}
