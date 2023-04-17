@@ -9,7 +9,7 @@
 #define BLOCKSIZE 1024  // bytes
 
 #define EXITO 0 //para gestionar errores
-#define FALLO (-1) //para gestionar errores
+#define FALLO -1 //para gestionar errores
 
 int bmount(const char *camino);
 int bunmount();

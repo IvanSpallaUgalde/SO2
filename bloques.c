@@ -37,7 +37,7 @@ int bwrite(unsigned int nbloque, const void *buf){
     //Posicionar el puntero en el offset
     lseek(descriptor,nbloque*BLOCKSIZE,SEEK_SET);
     //Escritura
-    if (write(descriptor,&buf,BLOCKSIZE)<0){
+    if (write(descriptor,buf,BLOCKSIZE)<0){
         return FALLO;
     }
     return BLOCKSIZE;
@@ -49,7 +49,7 @@ int bread(unsigned int nbloque, void *buf){
     //Posicionar el puntero en el offset
     lseek(descriptor,nbloque*BLOCKSIZE,SEEK_SET);
     //Lectura
-    if(read(descriptor, &buf,BLOCKSIZE)<0){
+    if(read(descriptor, buf,BLOCKSIZE)<0){
         FALLO;
     }
     return BLOCKSIZE;

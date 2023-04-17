@@ -1,4 +1,4 @@
-#include <ficheros_basico.h>
+#include "ficheros_basico.h"
 
 #define DEBUG3 1
 
@@ -201,7 +201,12 @@ char leer_bit(unsigned int nbloque)
     nbloqueMB = posbyte / BLOCKSIZE;
     nbloqueabs = SB.posPrimerBloqueMB + nbloqueMB;
 
-    unsigned char mascara = 128;
+    if (bread(nbloqueabs, bufferMB) < 0)
+    {
+        return -1;
+    }
+
+    posbyte = posbyte % BLOCKSIZE;
     mascara >>= posbit;
     mascara &= bufferMB[posbyte];
     mascara >>= (7 - posbit);
