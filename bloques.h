@@ -12,6 +12,6 @@
 #define FALLO -1 //para gestionar errores
 
 int bmount(const char *camino);
-int bunmount();
+int bumount();
 int bwrite(unsigned int nbloque, const void *buf);
 int bread(unsigned int nbloque, void *buf);

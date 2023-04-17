@@ -50,7 +50,7 @@ int bread(unsigned int nbloque, void *buf){
     lseek(descriptor,nbloque*BLOCKSIZE,SEEK_SET);
     //Lectura
     if(read(descriptor, buf,BLOCKSIZE)<0){
-        FALLO;
+        return FALLO;
     }
     return BLOCKSIZE;
 }

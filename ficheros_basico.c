@@ -399,25 +399,25 @@ int obtener_nRangoBL(struct inodo *inodo, unsigned int nbloogico, unsigned int *
 {
     if (nbloogico<DIRECTOS)
     {
-        ptr=inodo->punterosDirectos[nbloogico];
+        *ptr=inodo->punterosDirectos[nbloogico];
         return 0;
     }else if (nbloogico<INDIRECTOS0)
     {
-        ptr=inodo->punterosDirectos[0];
+        *ptr=inodo->punterosDirectos[0];
         return 1; 
     }
     else if (nbloogico<INDIRECTOS1)
     {
-        ptr=inodo->punterosDirectos[1];
+        *ptr=inodo->punterosDirectos[1];
         return 2; 
     }
     else if (nbloogico<INDIRECTOS2)
     {
-        ptr=inodo->punterosDirectos[2];
+        *ptr=inodo->punterosDirectos[2];
         return 3; 
     }
     else{
-        ptr=0;
+        *ptr=0;
         //MENSAJE DE ERROR
         return FALLO;
     }
@@ -456,6 +456,7 @@ int obtener_indice(unsigned int nblogico, int nivel_punteros)
             return ((nblogico - INDIRECTOS1) % (NPUNTEROS * NPUNTEROS)) % NPUNTEROS;
         }
     }
+    return FALLO;
 }
 
 int traducir_bloque_inodo(struct inodo *inodo, unsigned int nblogico, unsigned char reservar)
@@ -472,7 +473,7 @@ int traducir_bloque_inodo(struct inodo *inodo, unsigned int nblogico, unsigned c
 
     while (nivel_punteros > 0)
     {
-        if (ptr = 0)
+        if (ptr == 0)
         {
             if (reservar == 0)
             {
