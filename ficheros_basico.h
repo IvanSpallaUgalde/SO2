@@ -1,12 +1,18 @@
-
 //Includes
 #include "bloques.h"
-#include "limits.h"
+#include <limits.h>
+#include <time.h>
 
 //Define
 #define posSB 0 // el superbloque se escribe en el primer bloque de nuestro FS
 #define tamSB 1
 #define INODOSIZE 128 //tamaño en bytes de un inodo
+
+#define NPUNTEROS (BLOCKSIZE / sizeof(unsigned int))   // 256 punteros por bloque
+#define DIRECTOS 12
+#define INDIRECTOS0 (NPUNTEROS + DIRECTOS)    // 268
+#define INDIRECTOS1 (NPUNTEROS * NPUNTEROS + INDIRECTOS0)    // 65.804
+#define INDIRECTOS2 (NPUNTEROS * NPUNTEROS * NPUNTEROS + INDIRECTOS1) // 16.843.020
 
 struct superbloque{
 unsigned int posPrimerBloqueMB;         //Posicion absoluta del primer bloque del mapa de bits
@@ -42,5 +48,5 @@ struct inodo{
     unsigned int punterosIndirectos[3]; /*3 punteros a bloques indirectos:
     1 indirecto simple, 1 indirecto doble, 1 indirecto triple */
 
-    char padding[INODOSIZE - 2*sizeof(unsigned char)- 3*sizeof(time_t)-18*sizeof(unsigned int)-6*sizeof(unsigned char)];
+    char padding[INODOSIZE - (2*sizeof(unsigned char))- (3*sizeof(time_t))-(18*sizeof(unsigned int))-(6*sizeof(unsigned char))];
 };

@@ -396,26 +396,22 @@ int obtener_nRangoBL(struct inodo *inodo, unsigned int nbloogico, unsigned int *
     {
         ptr=inodo->punterosDirectos[nbloogico];
         return 0;
-    }else{
-    if (nbloogico<INDIRECTOS0)
+    }else if (nbloogico<INDIRECTOS0)
     {
         ptr=inodo->punterosDirectos[0];
         return 1; 
     }
-    
-    }else{
-    if (nbloogico<INDIRECTOS1)
+    else if (nbloogico<INDIRECTOS1)
     {
         ptr=inodo->punterosDirectos[1];
         return 2; 
     }
-    }else{
-    if (nbloogico<INDIRECTOS2)
+    else if (nbloogico<INDIRECTOS2)
     {
         ptr=inodo->punterosDirectos[2];
         return 3; 
     }
-    }else{
+    else{
         ptr=0;
         //MENSAJE DE ERROR
         return FALLO;
@@ -427,15 +423,12 @@ int obtener_indice(unsigned int nblogico, int nivel_punteros)
     if (nblogico<DIRECTOS)
     {
         return nblogico;
-    }else{
-    //nblogico<INDIRECTOS0
-    if (nblogico<INDIRECTOS0)
+    }
+    else if (nblogico<INDIRECTOS0) //nblogico<INDIRECTOS0
     {
         return nblogico-DIRECTOS;
     }
-    }else{
-    //nblogico<INDIRECTOS1
-    if (nblogico<INDIRECTOS1)
+    else if (nblogico<INDIRECTOS1)//nblogico<INDIRECTOS1
     {
         if (nivel_punteros==2){return (nblogico - INDIRECTOS0) / NPUNTEROS;}
         else
@@ -443,22 +436,103 @@ int obtener_indice(unsigned int nblogico, int nivel_punteros)
         if (nivel_punteros==1){return (nblogico - INDIRECTOS0) % NPUNTEROS;} 
         }
     }
-    }else{
-    //nblogico<INDIRECTOS2
-    if (nblogico<INDIRECTOS2)
+    else if (nblogico<INDIRECTOS2) //nblogico<INDIRECTOS2
     {
-        if (nivel_punteros==3){return (nblogico - INDIRECTOS1) / (NPUNTEROS * NPUNTEROS);}
-        else
+        if (nivel_punteros==3)
         {
-            if (nivel_punteros==2){return  ((nblogico - INDIRECTOS1) % (NPUNTEROS * NPUNTEROS)) / NPUNTEROS;} 
+            return (nblogico - INDIRECTOS1) / (NPUNTEROS * NPUNTEROS);
         }
-        else
+        else if (nivel_punteros==2)
         {
-            if (nivel_punteros==1){return ((nblogico - INDIRECTOS1) % (NPUNTEROS * NPUNTEROS)) % NPUNTEROS;}
+            return  ((nblogico - INDIRECTOS1) % (NPUNTEROS * NPUNTEROS)) / NPUNTEROS;
+        }
+        else if (nivel_punteros==1)
+        {
+            return ((nblogico - INDIRECTOS1) % (NPUNTEROS * NPUNTEROS)) % NPUNTEROS;
         }
     }
-    }
+}
 
-
+int traducir_bloque_inodo(struct inodo *inodo, unsigned int nblogico, unsigned char reservar)
+{
+    //Declaracion de variables
+    unsigned int ptr, ptr_ant;
+    int nRangoBL, nivel_punteros, indice;
+    unsigned int buffer[NPUNTEROS];
     
+    //Inicializacion de variables
+    ptr = 0, ptr_ant = 0;
+    nRangoBL = obtener_nRangoBL(inodo, nblogico, &ptr);
+    nivel_punteros = nRangoBL;
+
+    while (nivel_punteros > 0)
+    {
+        if (ptr = 0)
+        {
+            if (reservar == 0)
+            {
+                return FALLO;
+            }
+            else
+            {
+                ptr = reservar_bloque();
+                inodo->numBloquesOcupados++;
+                inodo->ctime = time(NULL);
+                if (nivel_punteros == nRangoBL)
+                {
+                    inodo->punterosIndirectos[nRangoBL-1] = ptr;
+                }
+                else
+                {
+                    buffer[indice] = ptr;
+                    if (bwrite(ptr_ant, buffer) == FALLO)
+                    {
+                        return FALLO;
+                    }
+                }
+                memset(buffer, 0, BLOCKSIZE);
+            }
+            
+        }
+        else
+        {
+            if (bread(ptr, buffer) == FALLO)
+            {
+                return FALLO;
+            }
+        }
+        indice = obtener_indice(nblogico, nivel_punteros);
+        ptr_ant = ptr;
+        ptr = buffer[indice];
+        nivel_punteros--;
+    }
+    
+    if (ptr == 0)
+    {
+        if (reservar == 0)
+        {
+            return FALLO;
+        }
+        else
+        {
+            ptr = reservar_bloque();
+            inodo->numBloquesOcupados++;
+            inodo->ctime = time(NULL);
+            if (nRangoBL == 0)
+            {
+                inodo->punterosDirectos[nblogico] = ptr;
+            }
+            else
+            {
+                buffer[indice] = ptr;
+                if (bwrite(ptr_ant, buffer) == FALLO)
+                {
+                    return FALLO;
+                }
+            }
+            
+        }
+
+    }
+    return ptr;
 }
