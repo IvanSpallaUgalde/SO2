@@ -542,3 +542,43 @@ int traducir_bloque_inodo(struct inodo *inodo, unsigned int nblogico, unsigned c
     }
     return ptr;
 }
+
+int liberar_inodo(unsigned int ninodo)
+{
+    struct inodo inodo;
+    int ninodo_liberado;
+
+    if(leer_inodo(ninodo, &inodo) == FALLO)
+    {
+        fprintf(stderr, "Error leyendo el inodo en liberar_inodo\n");
+        return FALLO;
+    }
+
+
+}
+
+int liberar_bloques_inodo(unsigned int primerBL, struct inodo *inodo)
+{
+    unsigned int ultimoBL, nivel_punteros, indice, ptr = 0, nBL;
+    
+    unsigned char bufAux_punteros[BLOCKSIZE];
+    unsigned int bloque_punteros[NPUNTEROS];
+
+
+    if(inodo->tamEnBytesLog % BLOCKSIZE == 0)
+    {
+        ultimoBL = inodo->tamEnBytesLog / BLOCKSIZE - 1;
+    }
+    else
+    {
+        ultimoBL = inodo->tamEnBytesLog / BLOCKSIZE;
+    } 
+
+    memset(bufAux_punteros, 0, BLOCKSIZE);
+
+    for (int i = primerBL; i < ultimoBL; i++)
+    {
+
+    }
+    
+}

@@ -25,7 +25,7 @@ int mi_write_f(unsigned int ninodo, const void *buf_original, unsigned int offse
     desp1 = offset % BLOCKSIZE;
     desp2 = (offset + nbytes - 1) % BLOCKSIZE;
 
-    nbfisico = traducir_bloque_inodo(ninodo, primerBL, 1);
+    nbfisico = traducir_bloque_inodo(&inodo, primerBL, 1);
 
     if (nbfisico == FALLO)
     {
@@ -69,7 +69,7 @@ int mi_write_f(unsigned int ninodo, const void *buf_original, unsigned int offse
 
         for (int i = primerBL + 1; i < ultimoBL; i++)
         {
-            nbfisico = traducir_bloque_inodo(ninodo, i, 1);
+            nbfisico = traducir_bloque_inodo(&inodo, i, 1);
             if (nbfisico == -1)
             {
                 fprintf(stderr, "Error obteniendo el bloque fisico\n");
@@ -86,7 +86,7 @@ int mi_write_f(unsigned int ninodo, const void *buf_original, unsigned int offse
         }
 
         // Obtencion del bloque fisico
-        nbfisico = traducir_bloque_inodo(ninodo, ultimoBL, 1);
+        nbfisico = traducir_bloque_inodo(&inodo, ultimoBL, 1);
         if (nbfisico == -1)
         {
             fprintf(stderr, "Error obteniendo el bloque fisico\n");
@@ -181,7 +181,7 @@ int mi_read_f(unsigned int ninodo, void *buf_original, unsigned int offset, unsi
     desp1 = offset % BLOCKSIZE;
     desp2 = (offset + nbytes - 1) % BLOCKSIZE;
 
-    nbfisico = traducir_bloque_inodo(ninodo, primerBL, 0);
+    nbfisico = traducir_bloque_inodo(&inodo, primerBL, 0);
 
     if (primerBL == ultimoBL)
     {
@@ -215,7 +215,7 @@ int mi_read_f(unsigned int ninodo, void *buf_original, unsigned int offset, unsi
         
         for (int i = primerBL +1; i < ultimoBL; i++)
         {
-            nbfisico = traducir_bloque_inodo(ninodo, i, 0);
+            nbfisico = traducir_bloque_inodo(&inodo, i, 0);
             if (nbfisico =! FALLO)
             {
                 aux_nbytes_leidos = bread(nbfisico, buf_bloque);
