@@ -59,6 +59,8 @@ int main(int argc,char **argv){
         fprintf(stderr, "Error inicializando la array de inodos");
         return FALLO;
     }
+
+    reservar_inodo('d', 7);
     
     //Cerramos el fichero
     if (bumount() == FALLO)
