@@ -2,7 +2,8 @@
 
 int mi_write_f(unsigned int ninodo, const void *buf_original, unsigned int offset, unsigned nbytes)
 {
-    int primerBL, ultimoBL, desp1, desp2, nbfisico, nbytes_escritos, aux_nbytes_escritos;
+    int primerBL, ultimoBL, desp1, desp2, nbfisico, nbytes_escritos= 0, aux_nbytes_escritos;
+    void *buf_aux=NULL;
     struct inodo inodo;
     unsigned char buf_bloque[BLOCKSIZE];
 
@@ -33,8 +34,11 @@ int mi_write_f(unsigned int ninodo, const void *buf_original, unsigned int offse
         return FALLO;
     }
 
+    // Copiamos al buff aux el contenido de buf_original
+    memcpy(buf_aux,buf_original,nbytes);
+    
     // Lectura del bloque fisico
-    if (bread(nbfisico, buf_original) == FALLO)
+    if (bread(nbfisico, buf_aux) == FALLO)
     {
         fprintf(stderr, "Error de lectura del bloque fisico\n");
         return FALLO;
@@ -147,7 +151,7 @@ int mi_write_f(unsigned int ninodo, const void *buf_original, unsigned int offse
 
 int mi_read_f(unsigned int ninodo, void *buf_original, unsigned int offset, unsigned int nbytes)
 {
-    int primerBL, ultimoBL, desp1, desp2, nbfisico, nbytes_leidos, aux_nbytes_leidos;
+    int primerBL, ultimoBL, desp1, desp2, nbfisico, nbytes_leidos= 0, aux_nbytes_leidos;
     struct inodo inodo;
     unsigned char buf_bloque[BLOCKSIZE];
 
@@ -216,7 +220,7 @@ int mi_read_f(unsigned int ninodo, void *buf_original, unsigned int offset, unsi
         for (int i = primerBL +1; i < ultimoBL; i++)
         {
             nbfisico = traducir_bloque_inodo(&inodo, i, 0);
-            if (nbfisico =! FALLO)
+            if (nbfisico != FALLO)
             {
                 aux_nbytes_leidos = bread(nbfisico, buf_bloque);
                 if (aux_nbytes_leidos == FALLO)
@@ -260,7 +264,7 @@ int mi_read_f(unsigned int ninodo, void *buf_original, unsigned int offset, unsi
         return FALLO;
     }
 
-    if(nbytes = nbytes_leidos)
+    if(nbytes == nbytes_leidos)
     {
         return nbytes_leidos;
     }
