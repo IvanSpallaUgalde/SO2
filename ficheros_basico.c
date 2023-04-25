@@ -553,92 +553,100 @@ int liberar_inodo(unsigned int ninodo)
         fprintf(stderr, "Error leyendo el inodo en liberar_inodo\n");
         return FALLO;
     }
-
+    return FALLO;
 
 }
 
 int liberar_bloques_inodo(unsigned int primerBL, struct inodo *inodo)
 {
-    unsigned int ultimoBL, nivel_punteros, indice, ptr = 0, nBL;
+    unsigned int ultimoBL, nivel_punteros, indice, ptr = 0, nBL=primerBL;
+    int nRangoBL;
     
     unsigned char bufAux_punteros[BLOCKSIZE];
     unsigned int bloque_punteros[3][NPUNTEROS];
     int ptr_nivel[3];
     int indices[3];
     int liberados;
-    int nRangoBL;
 
-    if (inodo->tamEnBytesLog == 0)
-    {
-        fprintf("Error en liberar_bloques_inodo: Inodo vacio\n");
-        return EXITO;
-    }
+
     if(inodo->tamEnBytesLog % BLOCKSIZE == 0)
     {
-        ultimoBL = inodo->tamEnBytesLog / BLOCKSIZE-1;
+        ultimoBL = inodo->tamEnBytesLog / BLOCKSIZE - 1;
     }
     else
     {
         ultimoBL = inodo->tamEnBytesLog / BLOCKSIZE;
-    }
+    } 
 
     memset(bufAux_punteros, 0, BLOCKSIZE);
-    
-    for (nBL = primerBL; nBL < ultimoBL; nBL++)
+
+    for (int i = primerBL; i < ultimoBL; i++)
     {
-        nRangoBL = obtener_nRangoBL(inodo, nBL, &ptr);
-        if(nRangoBL < 0)
+        nRangoBL=obtener_nRangoBL(inodo,nBL,&ptr);
+        if (nRangoBL<0)
         {
-            fprintf(stderr, "Error obteniendo nRangoBL en liberar_bloques_inodo\n");
             return FALLO;
         }
-        nivel_punteros = nRangoBL;
+        nivel_punteros=nRangoBL;
 
-        while (ptr > 0 && nivel_punteros > 0)
+        while (ptr>0 && nivel_punteros>0)
         {
-            indice = obtener_indice(nBL, nivel_punteros);
-            if((indice == 0) || (nBL = primerBL))
+            indice=obtener_indice(nBL,nivel_punteros);
+            if (indice ==0 || nBL==primerBL)
             {
-                bread(ptr, bloque_punteros[nivel_punteros - 1]);
+                bread(ptr,bloque_punteros[nivel_punteros-1]);
             }
-            ptr_nivel[nivel_punteros -1] = ptr;
-            indices[nivel_punteros -1] = indice;
-            ptr = bloque_punteros[nivel_punteros -1][indice];
+            ptr_nivel[nivel_punteros-1]=ptr;
+            indices[nivel_punteros-1]=indice;
+            ptr= bloque_punteros[nivel_punteros-1][indice];
             nivel_punteros--;
         }
         
-        if(ptr > 0)
+        if (ptr>0)
         {
             liberar_bloque(ptr);
             liberados++;
-            if (nRangoBL == 0)
+            if (nRangoBL==0)
             {
-                inodo->punterosDirectos[nBL] = 0;
+                inodo->punterosDirectos[nBL]=0;
             }
             else
             {
-                nivel_punteros = 1;
+                nivel_punteros=1;
                 while (nivel_punteros <= nRangoBL)
                 {
-                    indice = indices[nivel_punteros -1];
-                    bloque_punteros[nivel_punteros - 1][indice] = 0;
-                    ptr = ptr_nivel[nivel_punteros -1];
-                    if(memcmp(bloque_punteros[nivel_punteros -1], bufAux_punteros, BLOCKSIZE) == 0)
+                    indice=indices[nivel_punteros-1];
+                    bloque_punteros[nivel_punteros-1][indice]=0;
+                    ptr=ptr_nivel[nivel_punteros-1];
+                    if (memcmp(bloque_punteros[nivel_punteros-1],bufAux_punteros,BLOCKSIZE)==0)
                     {
                         liberar_bloque(ptr);
                         liberados++;
-                        if (nivel_punteros = nRangoBL)
+                        //!!!Incluir mejora!!!
+                        if (nivel_punteros==nRangoBL)
                         {
-                            inodo->punterosIndirectos[nRangoBL -1] = 0;
+                            inodo->punterosIndirectos[nRangoBL-1]=0;
                         }
-                        nivel_punteros = nRangoBL + 1;
+                        nivel_punteros++;                       
+
                     }
+                    else
+                    {
+                        bwrite(ptr,bloque_punteros[nivel_punteros-1]);
+
+                        nivel_punteros=nRangoBL+1;
+                    }
+                    
+                    
                 }
+                
             }
+        //!!!Incluit mejora!!!!    
             
         }
+        
+
     }
-    
-    
+    return liberados;
     
 }
