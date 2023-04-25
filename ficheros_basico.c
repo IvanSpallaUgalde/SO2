@@ -553,7 +553,54 @@ int liberar_inodo(unsigned int ninodo)
         fprintf(stderr, "Error leyendo el inodo en liberar_inodo\n");
         return FALLO;
     }
-    return FALLO;
+
+
+
+    //Llamamos a liberar_bloques_inodo
+    int bloquesLiberados =iberar_bloques_inodo(0/*No estoy seguro 100%*/,&inodo);
+    if (bloquesLiberados==FALLO)
+    {
+        fprintf(stderr, "Error leyendo el inodo en liberar_inodo\n");
+        return FALLO;
+    }
+    //La resta entre los bloques ocupados y los liberados debe ser 0
+    if (inodo.numBloquesOcupados - bloquesLiberados!=0)
+    {
+        return FALLO;
+    }
+    
+    //Marcamos el inodo com libre
+    inodo.tipo='l';   
+    inodo.tamEnBytesLog=0;
+
+    //Lectura de SB
+    struct superbloque SB;
+    if (bread(posSB, &SB) == FALLO)
+    {
+        return FALLO;
+    }
+    //Actualizar la lista de inodos libres !No estoy seguro
+    inodo.punterosDirectos[0]=SB.posPrimerInodoLibre;
+    SB.posPrimerInodoLibre=&inodo;
+
+    SB.cantInodosLibres++;
+
+    //Escritura SB
+    if (bwrite(posSB, &SB) == FALLO)
+    {
+        return FALLO;
+    }
+    //Actualizar ctime
+    inodo.ctime=0; //!!!!!!!No se que poner
+    if(escribir_inodo(ninodo,&inodo)==FALLO)
+    {
+        printf(stderr, "Error escribiendo el inodo en liberar_inodo\n");
+        return FALLO;
+    }
+    //!! falta el return
+
+    
+    
 
 }
 
