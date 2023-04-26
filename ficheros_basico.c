@@ -557,12 +557,13 @@ int liberar_inodo(unsigned int ninodo)
 
 
     //Llamamos a liberar_bloques_inodo
-    int bloquesLiberados =iberar_bloques_inodo(0/*No estoy seguro 100%*/,&inodo);
+    int bloquesLiberados =liberar_bloques_inodo(0/*No estoy seguro 100%*/,&inodo);
     if (bloquesLiberados==FALLO)
     {
         fprintf(stderr, "Error leyendo el inodo en liberar_inodo\n");
         return FALLO;
     }
+
     //La resta entre los bloques ocupados y los liberados debe ser 0
     if (inodo.numBloquesOcupados - bloquesLiberados!=0)
     {
@@ -591,16 +592,14 @@ int liberar_inodo(unsigned int ninodo)
         return FALLO;
     }
     //Actualizar ctime
-    inodo.ctime=0; //!!!!!!!No se que poner
+    inodo.ctime=time(NULL);
     if(escribir_inodo(ninodo,&inodo)==FALLO)
     {
         printf(stderr, "Error escribiendo el inodo en liberar_inodo\n");
         return FALLO;
     }
-    //!! falta el return
-
     
-    
+    return ninodo;
 
 }
 
