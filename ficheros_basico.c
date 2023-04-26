@@ -557,7 +557,7 @@ int liberar_inodo(unsigned int ninodo)
 
 
     //Llamamos a liberar_bloques_inodo
-    int bloquesLiberados =liberar_bloques_inodo(0/*No estoy seguro 100%*/,&inodo);
+    int bloquesLiberados =liberar_bloques_inodo(0, &inodo);
     if (bloquesLiberados==FALLO)
     {
         fprintf(stderr, "Error leyendo el inodo en liberar_inodo\n");

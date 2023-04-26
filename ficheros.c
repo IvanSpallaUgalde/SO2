@@ -278,7 +278,7 @@ int mi_stat_f(unsigned int ninodo, struct STAT *p_stat)
 {
     struct inodo inodo;
 
-    if(leer_inodo(ninodo, &inodo) < 0)
+    if(leer_inodo(ninodo, &inodo) == FALLO)
     {
         return FALLO;
     }
@@ -314,4 +314,56 @@ int my_chmod_f(unsigned int ninodo, unsigned char permisos)
     }
 
     return EXITO;    
+}
+
+int mi_truncar_f(unsigned int ninod0, unsigned int nbytes)
+{
+    int primerBL, liberados;
+    struct inodo inodo;
+
+    if(leer_inodo(ninod0, &inodo) < 0)
+    {
+        fprintf(stderr, "Error leyendo el inodo en mi_truncar_f\n");
+        return FALLO;
+    }
+
+    if ((inodo.permisos & 2) == 2)
+    {
+        if (nbytes > inodo.tamEnBytesLog)
+        {
+            fprintf(stderr, "Error: La cantidad de bytes a truncar es mayor que el tamaño del fichero\n");
+            return FALLO;
+        }
+        
+        if (nbytes % BLOCKSIZE == 0)
+        {
+            primerBL = nbytes / BLOCKSIZE;
+        }
+        else
+        {
+            primerBL = nbytes /BLOCKSIZE + 1;
+        }
+        
+        liberados = liberar_bloques_inodo(primerBL, &inodo);
+
+        inodo.mtime = time(NULL);
+        inodo.ctime = time(NULL);
+        inodo.tamEnBytesLog = nbytes;
+        inodo.numBloquesOcupados = inodo.numBloquesOcupados - liberados;
+
+        if (escribir_inodo(ninodo, &inodo) == FALLO)
+        {
+            fprintf(stderr, "Error escribiendo el inodo en mi_truncar_f\n");
+            return FALLO;
+        }
+
+        return liberados;
+    }
+    else
+    {
+        fprintf(stderr, "Error: el inodo no tiene permiso de escritura\n");
+        return FALLO;
+    }
+    
+    
 }
