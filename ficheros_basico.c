@@ -546,6 +546,7 @@ int traducir_bloque_inodo(struct inodo *inodo, unsigned int nblogico, unsigned c
 int liberar_inodo(unsigned int ninodo)
 {
     struct inodo inodo;
+    int bloquesLiberados;
     int ninodo_liberado;
 
     if(leer_inodo(ninodo, &inodo) == FALLO)
@@ -557,7 +558,7 @@ int liberar_inodo(unsigned int ninodo)
 
 
     //Llamamos a liberar_bloques_inodo
-    int bloquesLiberados =liberar_bloques_inodo(0, &inodo);
+    bloquesLiberados = liberar_bloques_inodo(0, &inodo);
     if (bloquesLiberados==FALLO)
     {
         fprintf(stderr, "Error leyendo el inodo en liberar_inodo\n");
