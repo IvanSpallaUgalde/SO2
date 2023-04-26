@@ -316,12 +316,12 @@ int my_chmod_f(unsigned int ninodo, unsigned char permisos)
     return EXITO;    
 }
 
-int mi_truncar_f(unsigned int ninod0, unsigned int nbytes)
+int mi_truncar_f(unsigned int ninodo, unsigned int nbytes)
 {
     int primerBL, liberados;
     struct inodo inodo;
 
-    if(leer_inodo(ninod0, &inodo) < 0)
+    if(leer_inodo(ninodo, &inodo) < 0)
     {
         fprintf(stderr, "Error leyendo el inodo en mi_truncar_f\n");
         return FALLO;
