@@ -27,7 +27,7 @@ unsigned int posPrimerBloqueMB;         //Posicion absoluta del primer bloque de
   unsigned int cantInodosLibres;        //Cantidad de inodos libres (en el AI)
   unsigned int totBloques;              //Cantidad total de bloques en el disco
   unsigned int totInodos;               //Cantidad total de inodos (heuristica)
-  char padding[BLOCKSIZE-12*sizeof(unsigned int)]; //Relleno para ocupar el bloque completo
+  char padding[BLOCKSIZE - 12 * sizeof(unsigned int)]; //Relleno para ocupar el bloque completo
 };
 
 struct inodo{
@@ -66,3 +66,5 @@ int reservar_inodo(unsigned char tipo, unsigned char permisos);
 int obtener_nRangoBL(struct inodo *inodo, unsigned int nbloogico, unsigned int *ptr);
 int obtener_indice(unsigned int nblogico, int nivel_punteros);
 int traducir_bloque_inodo(struct inodo *inodo, unsigned int nblogico, unsigned char reservar);
+int liberar_inodo(unsigned int ninodo);
+int liberar_bloques_inodo(unsigned int primerBL, struct inodo *inodo);

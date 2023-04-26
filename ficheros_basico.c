@@ -547,7 +547,6 @@ int liberar_inodo(unsigned int ninodo)
 {
     struct inodo inodo;
     int bloquesLiberados;
-    int ninodo_liberado;
 
     if(leer_inodo(ninodo, &inodo) == FALLO)
     {
@@ -555,10 +554,8 @@ int liberar_inodo(unsigned int ninodo)
         return FALLO;
     }
 
-
-
     //Llamamos a liberar_bloques_inodo
-    bloquesLiberados = liberar_bloques_inodo(0, &inodo);
+    bloquesLiberados = liberar_bloques_inodo(0,&inodo);
     if (bloquesLiberados==FALLO)
     {
         fprintf(stderr, "Error leyendo el inodo en liberar_inodo\n");
@@ -581,9 +578,9 @@ int liberar_inodo(unsigned int ninodo)
     {
         return FALLO;
     }
-    //Actualizar la lista de inodos libres !No estoy seguro
+    //Actualizar la lista de inodos libres
     inodo.punterosDirectos[0]=SB.posPrimerInodoLibre;
-    SB.posPrimerInodoLibre=&inodo;
+    SB.posPrimerInodoLibre=ninodo;
 
     SB.cantInodosLibres++;
 
@@ -596,7 +593,7 @@ int liberar_inodo(unsigned int ninodo)
     inodo.ctime=time(NULL);
     if(escribir_inodo(ninodo,&inodo)==FALLO)
     {
-        printf(stderr, "Error escribiendo el inodo en liberar_inodo\n");
+        fprintf(stderr, "Error escribiendo el inodo en liberar_inodo\n");
         return FALLO;
     }
     
