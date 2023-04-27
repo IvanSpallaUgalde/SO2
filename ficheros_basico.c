@@ -563,7 +563,8 @@ int liberar_inodo(unsigned int ninodo)
     }
 
     //La resta entre los bloques ocupados y los liberados debe ser 0
-    if (inodo.numBloquesOcupados - bloquesLiberados!=0)
+    inodo.numBloquesOcupados -= bloquesLiberados;
+    if (inodo.numBloquesOcupados!=0)
     {
         return FALLO;
     }
