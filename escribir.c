@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
 
     longtext = strlen(argv[2]);
     dif_inodos = atoi(argv[3]);
-    if (bmount(argv[1] < 0))
+    if (bmount(argv[1]) < 0)
     {
         return FALLO;
     }
@@ -36,7 +36,8 @@ int main(int argc, char *argv[])
         {
             fprintf(stderr, " Nº inodo reservado: %d\n", ninodo);
             fprintf(stderr, "Offset: %d\n", offsets[i]);
-            if (nbytes = mi_write_f(ninodo, buff_texto, offsets[i], longtext) == FALLO)
+            nbytes = mi_write_f(ninodo, buff_texto, offsets[i], longtext);
+            if (nbytes == FALLO)
             {
                 return FALLO;
             }

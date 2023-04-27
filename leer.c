@@ -11,7 +11,7 @@ int main(int argc, char const *argv[])
     struct STAT p_stat;
     if (argc >= 3)
     {
-        if (bmount(argv[1] >= 0))
+        if (bmount(argv[1]) >= 0)
         {
             ninodo = atoi(argv[2]);
             memset(buffer_texto, 0, tambuffer);

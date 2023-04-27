@@ -3,7 +3,7 @@
 int main(int argc, char *argv[])
 {
     int ninodo = atoi(argv[2]);
-    int permisos = atoi(argv[3]);
+    char permisos = atoi(argv[3]);
 
     if(argc != 4)
     {

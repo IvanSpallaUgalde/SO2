@@ -295,7 +295,7 @@ int mi_stat_f(unsigned int ninodo, struct STAT *p_stat)
     return EXITO;
 }
 
-int my_chmod_f(unsigned int ninodo, unsigned char permisos)
+int mi_chmod_f(unsigned int ninodo, unsigned char permisos)
 {
     struct inodo inodo;
     if (leer_inodo(ninodo, &inodo) == FALLO)
