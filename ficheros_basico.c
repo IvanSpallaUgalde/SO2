@@ -1,7 +1,7 @@
 #include "ficheros_basico.h"
 
 #define DEBUG3 1
-
+#define DEBUGE1 1
 int bw = 0;
 
 /*
@@ -487,6 +487,9 @@ int traducir_bloque_inodo(struct inodo *inodo, unsigned int nblogico, unsigned c
                 if (nivel_punteros == nRangoBL)
                 {
                     inodo->punterosIndirectos[nRangoBL-1] = ptr;
+#if DEBUGE1
+                    fprintf(stderr, "[traducir_bloque_inodo() → inodo.punterosIndirectos[%d] = %d (reservado BF %d para punteros_nivel%d)]\n", nRangoBL - 1, inodo->punterosIndirectos[nRangoBL-1], inodo->punterosIndirectos[nRangoBL - 1], nRangoBL);
+#endif 
                 }
                 else
                 {
@@ -495,6 +498,7 @@ int traducir_bloque_inodo(struct inodo *inodo, unsigned int nblogico, unsigned c
                     {
                         return FALLO;
                     }
+                    fprintf(stderr, "[traducir_bloque_inodo() → inodo.punteros_nivel%d[%d] = %d (reservado BF %d para punteros_nivel%d)]\n", nivel_punteros + 1, indice, buffer[indice], buffer[indice], nivel_punteros);
                 }
                 memset(buffer, 0, BLOCKSIZE);
             }
