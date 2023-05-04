@@ -41,4 +41,10 @@ int main(int argc, char *argv[])
     printf("totInodos = %d\n", SB.totInodos);
 #endif
 
+    if (bumount() == FALLO)
+    {
+        fprintf(stderr, "Error desmontando el dispositivo en leer_sf.c\n");
+        return FALLO;
+    }
+    
 }

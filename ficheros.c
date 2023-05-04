@@ -3,7 +3,6 @@
 int mi_write_f(unsigned int ninodo, const void *buf_original, unsigned int offset, unsigned nbytes)
 {
     int primerBL, ultimoBL, desp1, desp2, nbfisico, nbytes_escritos= 0, aux_nbytes_escritos;
-    void *buf_aux=NULL;
     struct inodo inodo;
     unsigned char buf_bloque[BLOCKSIZE];
 
@@ -14,7 +13,7 @@ int mi_write_f(unsigned int ninodo, const void *buf_original, unsigned int offse
 
     if ((inodo.permisos & 2) != 2)
     {
-        fprintf(stderr, "Error: El inodo no tiene permiso de escritura");
+        fprintf(stderr, "Error: El inodo no tiene permiso de escritura\n");
         return FALLO;
     }
 
@@ -25,7 +24,7 @@ int mi_write_f(unsigned int ninodo, const void *buf_original, unsigned int offse
     // Desplazamientos del bloque logico
     desp1 = offset % BLOCKSIZE;
     desp2 = (offset + nbytes - 1) % BLOCKSIZE;
-
+    
     nbfisico = traducir_bloque_inodo(&inodo, primerBL, 1);
 
     if (nbfisico == FALLO)
@@ -34,18 +33,14 @@ int mi_write_f(unsigned int ninodo, const void *buf_original, unsigned int offse
         return FALLO;
     }
 
-    // Copiamos al buff aux el contenido de buf_original
-    memcpy(buf_aux,buf_original,nbytes);
-    
     // Lectura del bloque fisico
-    if (bread(nbfisico, buf_aux) == FALLO)
+    if (bread(nbfisico, buf_bloque) == FALLO)
     {
         fprintf(stderr, "Error de lectura del bloque fisico\n");
         return FALLO;
     }
 
     // Primer caso (primerBL == ultimoBL)
-
     if (primerBL == ultimoBL)
     {
         memcpy(buf_bloque + desp1, buf_original, nbytes);

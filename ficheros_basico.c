@@ -373,11 +373,11 @@ int reservar_inodo(unsigned char tipo, unsigned char permisos)
     inodo.numBloquesOcupados = 0;
     for (int i = 0; i < 12; i++)
     {
-        for (int j = 0; j < 12; j++)
+        for (int j = 0; j < 3; j++)
         {
-            inodo.punterosDirectos[j] = 0;
+            inodo.punterosIndirectos[j] = 0;
         }
-        inodo.punterosIndirectos[i] = 0;
+        inodo.punterosDirectos[i] = 0;
     }
 
     if (escribir_inodo(posInodoReservado, &inodo) == FALLO)
