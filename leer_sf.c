@@ -1,4 +1,5 @@
 #include "ficheros_basico.h"
+#include "directorios.h"
 
 #define DEBUGSB 1   //Debug del superbloque
 

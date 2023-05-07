@@ -1,5 +1,6 @@
 
 #include "ficheros_basico.h"
+#include "directorios.h"
 
 #define DEBUGSB 1
 #define DEBUGSB1 0
