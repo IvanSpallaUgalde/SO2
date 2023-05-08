@@ -78,7 +78,58 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
     num_entrada_inodo=0;
     if (cant_entradas_inodo>0)
     {
-        
+        //Leer entrada
+
+        while((num_entrada_inodo < cant_entradas_inodo)&&(inicial != entrada.nombre))
+        {
+            num_entrada_inodo++
+            //Leer siguiente entrada
+        }
+    }
+
+    if((inicial != entrada.nombre) && (num_entrada_inodo = cant_entradas_inodo))
+    {
+        //La entrada no exsite
+        switch(reservar)
+        {
+            case 0: //Modo consulta, al no existir retornamos error
+                return ERROR_NO_EXISTE_ENTRADA_CONSULTA
+                break;
+            case 1: //Modo escritura
+            //Creamos la entrada en el directorio referenciado por *p_inodo_dir
+            //si es fichero no permitir escritura
+            if(inodo_dir.tipo == 'f')
+            {
+                return ERROR_NO_SE_PUEDE_CREAR_ENTRADA_EN_UN_FICHERO;
+            }
+
+            if(/*Inodo.dir no tiene permisos de escritura*/)
+            {
+                return ERROR_PERMISO_ESCRITURA;
+            }
+            else
+            {
+                //Copiar *inicial en el nombre de la entrada
+                if(inodo_dir.tipo == 'd')
+                {
+                    if(final == "/")
+                    {
+                        //Reservar un inodo como directorio y asignarlo a la entrada
+                        reservar_inodo('d',/*Permisos*/);
+                        
+                    }
+                    else
+                    {
+                        return ERROR_NO_EXISTE_DIRECTORIO_INTERMEDIO
+                    }
+                }
+                else //Se trata de un fichero
+                {
+                    //Asignar un inodo como fichero y asignarlo a la entrada
+                }
+            }
+        }
+            
     }
     
     
