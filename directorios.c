@@ -54,7 +54,7 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
         {
             return FALLO;
         }
-        
+
         p_inodo=SB.posInodoRaiz;
         p_entrada=0;
         return 0;
@@ -65,9 +65,10 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
         return ERROR_CAMINO_INCORRECTO;
     }
 
-    //buscamos la enmtrada cuyo nombre se encuentra en inicial
+    //buscamos la entrada cuyo nombre se encuentra en inicial
     leer_inodo(p_inodo_dir,&inodo_dir);
-    if(inodo_dir.permisos/*MIRAR COMO SE COMPRUEBAN LOS PERMISOS!!*/){
+    
+    if((inodo_dir.permisos & 4) !=4){
         return ERROR_PERMISO_LECTURA;
     }
 
@@ -82,7 +83,7 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
 
         while((num_entrada_inodo < cant_entradas_inodo)&&(inicial != entrada.nombre))
         {
-            num_entrada_inodo++
+            num_entrada_inodo++;
             //Leer siguiente entrada
         }
     }
@@ -93,7 +94,7 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
         switch(reservar)
         {
             case 0: //Modo consulta, al no existir retornamos error
-                return ERROR_NO_EXISTE_ENTRADA_CONSULTA
+                return ERROR_NO_EXISTE_ENTRADA_CONSULTA;
                 break;
             case 1: //Modo escritura
             //Creamos la entrada en el directorio referenciado por *p_inodo_dir
@@ -103,34 +104,62 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
                 return ERROR_NO_SE_PUEDE_CREAR_ENTRADA_EN_UN_FICHERO;
             }
 
-            if(/*Inodo.dir no tiene permisos de escritura*/)
+            if((inodo_dir.permisos & 4) != 4)
             {
                 return ERROR_PERMISO_ESCRITURA;
             }
             else
             {
-                //Copiar *inicial en el nombre de la entrada
+                //Copiar *inicial en el nombre de la entrada!!
+
                 if(inodo_dir.tipo == 'd')
                 {
                     if(final == "/")
                     {
                         //Reservar un inodo como directorio y asignarlo a la entrada
-                        reservar_inodo('d',/*Permisos*/);
+                        reservar_inodo('d',/*Permisos, por ahora permiross para todo*/7);
                         
                     }
                     else
                     {
-                        return ERROR_NO_EXISTE_DIRECTORIO_INTERMEDIO
+                        return ERROR_NO_EXISTE_DIRECTORIO_INTERMEDIO;
                     }
                 }
                 else //Se trata de un fichero
                 {
-                    //Asignar un inodo como fichero y asignarlo a la entrada
+                    //Reservar un inodo como fichero y asignarlo a la entrada
+                    reservar_inodo('f',/*Permisos, por ahora permiross para todo*/7);
+                }
+                //Escribir la entrada en el directorio padre
+                if(/*Error escritura*/)
+                {
+                    if(/*Se habia reservado un inodo para la entrada*/)
+                    {
+                        //Liberar inodo
+                    }
+                    return FALLO;
                 }
             }
         }
             
+    }   
+    //Si hemos llegado al final del camino (No estoy seguro)
+    if(camino_parcial==NULL)
+    {
+        if((num_entrada_inodo < cant_entradas_inodo)&&(reservar == 1))
+        {
+            return ERROR_ENTRADA_YA_EXISTENTE;
+        }
+        //Asignar a *p_inodo el numero de inodo del directorio o fichero creado o leido
+        //Asignar a *p_netrada el numero de su entrada dentro del ultimo diretorio que lo contiene
+        return EXITO;
     }
+    else
+    {
+        //Asingar a *p_inodo_dir el puntero al inodo que se indica en la entrada encontrada
+        return buscar_entrada(final,p_inodo_dir,p_inodo,p_entrada,reservar,permisos);
+    }
+    return EXITO;
     
     
 
