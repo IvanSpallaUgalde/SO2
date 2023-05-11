@@ -111,6 +111,11 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
         {
             num_entrada_inodo++;
             //Leer siguiente entrada
+            if (mi_read_f(p_inodo_dir, &entrada, num_entrada_inodo * sizeof(struct entrada), sizeof(struct entrada)) < 0)
+            {
+                return ERROR_PERMISO_LECTURA;
+            }
+            
         }
     }
 
@@ -137,14 +142,18 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
             else
             {
                 //Copiar *inicial en el nombre de la entrada!!
+                strcpy(entrada.nombre, inicial);
 
                 if(inodo_dir.tipo == 'd')
                 {
-                    if(final == "/")
+                    if(strcmp(final, "/"))
                     {
                         //Reservar un inodo como directorio y asignarlo a la entrada
-                        reservar_inodo('d',/*Permisos, por ahora permiross para todo*/7);
+                        entrada.ninodo = reservar_inodo(tipo, permisos);
                         
+#if DEBUG7
+                        printf("[buscar_entrada()->reservar inodo: %d tipo %c con permisos %d para '%s']\n", entrada.ninodo, tipo, permisos, entrada.nombre)
+#endif
                     }
                     else
                     {
@@ -154,14 +163,18 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
                 else //Se trata de un fichero
                 {
                     //Reservar un inodo como fichero y asignarlo a la entrada
-                    reservar_inodo('f',/*Permisos, por ahora permiross para todo*/7);
+                    entrada.ninodo = reservar_inodo(tipo, permisos);
                 }
                 //Escribir la entrada en el directorio padre
-                if(/*Error escritura*/)
+                if(mi_write_f(*p_inodo_dir, &entrada, inodo_dir.tamEnBytesLog, sizeof(struct entrada)) == FALLO)
                 {
-                    if(/*Se habia reservado un inodo para la entrada*/)
+                    if(entrada.ninodo != -1)
                     {
-                        //Liberar inodo
+                        liberar_inodo(entrada.ninodo);
+
+#if DEBUG7
+                        printf("[buscar_entrada()-> liberado inodo %i, reservado a %s\n]", num_entrada_inodo, inicial);
+#endif
                     }
                     return FALLO;
                 }
@@ -170,14 +183,16 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
             
     }   
     //Si hemos llegado al final del camino (No estoy seguro)
-    if(camino_parcial==NULL)
+    if(!strcmp(final, "/") || !strcmp(final, ""))
     {
         if((num_entrada_inodo < cant_entradas_inodo)&&(reservar == 1))
         {
             return ERROR_ENTRADA_YA_EXISTENTE;
         }
-        //Asignar a *p_inodo el numero de inodo del directorio o fichero creado o leido
-        //Asignar a *p_netrada el numero de su entrada dentro del ultimo diretorio que lo contiene
+
+        p_inodo = num_entrada_inodo;
+        p_entrada = entrada.ninodo;
+
         return EXITO;
     }
     else
