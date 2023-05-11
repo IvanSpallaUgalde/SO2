@@ -6,9 +6,18 @@ int extraer_camino(const char *camino, char *inicial, char *final, char *tipo)
 {
     char *token;
     char *aux;
-    const char barra ="/";
+    const char barra ='/';
 
-    strcpy(aux,camino);
+    if (camino[0] != barra)
+    {
+        fprintf(stderr, "Error: El camino debe comenzar por '/'\n");
+        return FALLO;
+    }
+
+    token = strchr((camino + 1), '/');
+    strcpy(tipo,"f");
+
+    
     //Eliminamos el primer "/"
     token=strtok(aux,barra);
 
@@ -46,6 +55,10 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
     char tipo;
     int cant_entradas_inodo, num_entrada_inodo;
 
+    memset(inicial, 0, sizeof(entrada.nombre));
+    memset(final, 0, strlen(camino_parcial));
+    memset(entrada.nombre, 0, sizeof(entrada.nombre));
+
     //Si es el directorio raiz
     if (strcmp(camino_parcial,"/")==0)
     {      
@@ -65,6 +78,9 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
         return ERROR_CAMINO_INCORRECTO;
     }
 
+#if DEBUG7
+    printf("[buscar_entrada()->inicial: %s, final: %s, reservar: %d]\n", inicial, final, reservar);
+#endif
     //buscamos la entrada cuyo nombre se encuentra en inicial
     leer_inodo(p_inodo_dir,&inodo_dir);
     
@@ -79,6 +95,16 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
     num_entrada_inodo=0;
     if (cant_entradas_inodo>0)
     {
+        if ((inodo_dir.permisos & 4) != 4)
+        {
+            return ERROR_PERMISO_LECTURA;
+        }
+        
+        if (mi_read_f(*p_inodo_dir, &entrada, num_entrada_inodo * sizeof(struct entrada), sizeof(struct entrada)) < 0)
+        {
+            return ERROR_PERMISO_LECTURA;
+        }
+        
         //Leer entrada
 
         while((num_entrada_inodo < cant_entradas_inodo)&&(inicial != entrada.nombre))
