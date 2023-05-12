@@ -14,36 +14,31 @@ int extraer_camino(const char *camino, char *inicial, char *final, char *tipo)
         return FALLO;
     }
 
-    token = strchr((camino + 1), '/');
+    token = strchr((camino + 1), barra);
     strcpy(tipo,"f");
 
     
     //Eliminamos el primer "/"
-    token=strtok(aux,barra);
-
-    token = strtok(NULL, barra);
-
-    if(strcpy(inicial,token)!=NULL)
+    if (token)
     {
-        strcpy(tipo,"d");
+        strncpy(inicial, (camino + 1), (strlen(camino) - streln(token)));
+        
+        strcpy(final, token);
+
+        if (final[0] == barra)
+        {
+            strcpy(tipo, "d");
+        }
     }
     else
     {
-        strcpy(tipo,"f");
+        strcpy(inicial, (camino + 1));
+
+        strcpy(final, "");
     }
 
-    if(strtok(token,barra)!=NULL)
-    {
-        strcpy(final,token);
-    }
-    else
-    {
-        strcpy(final,"");
-    }
-
-    
+    return EXITO;
 }
-
 
 
 int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsigned int *p_inodo, unsigned int *p_entrada, char reservar, unsigned char permisos)
@@ -82,17 +77,23 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
     printf("[buscar_entrada()->inicial: %s, final: %s, reservar: %d]\n", inicial, final, reservar);
 #endif
     //buscamos la entrada cuyo nombre se encuentra en inicial
-    leer_inodo(p_inodo_dir,&inodo_dir);
-    
+    if(leer_inodo(p_inodo_dir,&inodo_dir) == FALLO)
+    {
+        return ERROR_PERMISO_LECTURA;
+    }
+
     if((inodo_dir.permisos & 4) !=4){
         return ERROR_PERMISO_LECTURA;
     }
 
-    //Iniciar el buffer de lectura !!!!
+    //Iniciar el buffer de lectura 
+    struct entrada buffer_lectura[BLOCKSIZE / sizeof(struct entrada)];
+    memset(buffer_lectura, 0, (BLOCKSIZE / sizeof(struct entrada)) * sizeof(struct entrada));
 
     //Calculamos la contidad de entradas en el inodo (no estoy seguro)
-    cant_entradas_inodo=(inodo_dir.numBloquesOcupados*BLOCKSIZE)/sizeof(entrada);
-    num_entrada_inodo=0;
+    cant_entradas_inodo = inodo_dir.tamEnBytesLog/sizeof(entrada);
+    num_entrada_inodo = 0;
+
     if (cant_entradas_inodo>0)
     {
         if ((inodo_dir.permisos & 4) != 4)
