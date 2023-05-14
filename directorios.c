@@ -220,3 +220,91 @@ void mostrar_error_buscar_entrada(int error) {
    case -8: fprintf(stderr, "Error: No es un directorio.\n"); break;
    }
 }
+
+int mi_creat(const char *camino, unsigned char permisos)
+{
+    unsigned int p_inodo = 0, p_entrada = 0, p_inodo_dir = 0;
+    int error;
+    if ((error = buscar_entrada(camino, &p_inodo_dir, &p_inodo, &p_entrada, 1, permisos)) < 0)
+    {
+        mostrar_error_buscar_entrada(error);
+        return error;
+    }
+    return FALLO;
+
+}
+
+int mi_dir(const char *camino, char *buffer)
+{
+    struct inodo inodo;
+    struct superbloque SB;
+    struct entrada entrada;
+    struct tm *tm;
+    if (bread(posSB, &SB) == FALLO)
+    {
+        fprintf(stderr, "Error leyendo el superbloque en mi_dir() [directorios.c]\n");
+        return FALLO;
+    }
+    unsigned int p_entrada = 0;
+    unsigned int p_inodo_dir = SB.posInodoRaiz;
+    unsigned int p_inodo = SB.posInodoRaiz;
+
+    char tmp[100], tam[20];
+    int error, num_entradas;
+
+
+    if ((error = buscar_entrada(camino, &p_inodo_dir, &p_inodo, &p_entrada, 0, 0)) < 0)
+    {
+        mostrar_error_buscar_entrada(error);
+        return FALLO;
+    }
+    else
+    {
+        leer_inodo(p_inodo, &inodo);
+        num_entradas = inodo.tamEnBytesLog/sizeof(struct entrada);
+        if (inodo.tipo != 'd')
+        {
+            fprintf(stderr, "El inodo no es de tipo directorio\n");
+            return -8;
+        }
+        if (inodo.tipo != 'd' && inodo.permisos & 4)
+        {
+            fprintf(stderr, "El inodo no tiene permisos de lectura\n");
+            return -3;
+        }
+        for (int i = 0; i < num_entradas; i++)
+        {
+            if(mi_read_f(p_inodo, &entrada, i*sizeof(struct entrada), sizeof(struct entrada)) < 0)
+            {
+                return FALLO;
+            }
+            leer_inodo(entrada.ninodo, &inodo);
+
+            if (inodo.tipo == 'd')
+            {
+                strcat(buffer, "d");
+            }
+            else
+            {
+                strcat(buffer, "f");
+            }
+            strcat(buffer, "\t");
+            
+            tm = localtime(&inodo.mtime);
+            sprintf(tmp, "%d-%02d-%02d %02d:%02d:%02d", tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm-> tm_min, tm->tm_sec);
+            strcat(buffer, tmp);
+            strcat(buffer, "\t");
+
+            sprintf(tam, "d", inodo.tamEnBytesLog);
+            strcat(buffer, tam);
+            strcat(buffer, "\t");
+            
+            strcat(buffer, entrada.nombre);
+            strcat(buffer, "\n");
+        }
+        return num_entradas;
+
+    }
+    
+
+}
