@@ -305,6 +305,28 @@ int mi_dir(const char *camino, char *buffer)
         return num_entradas;
 
     }
-    
 
+}
+
+int mi_chmod(const char *camino, unsigned char permisos)
+{
+    //buscar_entrada(camino,);
+
+    struct inodo inodo;
+    if (leer_inodo(/*ninodo*/, &inodo) == FALLO)
+    {
+        fprintf(stderr, "Error de lectura de inodo\n");
+        return FALLO;
+    }
+
+    inodo.permisos = permisos;
+    inodo.ctime = time(NULL);
+
+    if(escribir_inodo(/*ninodo*/, &inodo) == FALLO)
+    {
+        fprintf(stderr, "Error de escritura del inodo\n");
+        return FALLO;
+    }
+
+    return EXITO;
 }
