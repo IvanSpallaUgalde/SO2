@@ -1,8 +1,5 @@
 #include "directorios.h"
 
-#define TAMFILA 100
-#define TAMBUFFER (TAMFILA*1000) //suponemos un máx de 1000 entradas, aunque debería ser SB.totInodos
-
 int main(int argc, char const *argv[])
 {
     if (argc != 3)
@@ -11,14 +8,23 @@ int main(int argc, char const *argv[])
         return FALLO;
     }
 
-    unsigned char buf[TAMBUFFER];
+    char buf[TAMBUFFER];
 
-    bmount(argv[1]);
-    
+    if(bmount(argv[1]) == FALLO)
+    {
+        return FALLO;
+    }
+
     int numero_entradas =mi_dir(argv[2],buf);
+
+    if (numero_entradas < 0)
+    {
+        return FALLO;
+    }
+    
     printf("%s\n",buf);
     printf("Numero entradas: %d",numero_entradas);
 
-    bumount;
+    bumount();
 
 }
