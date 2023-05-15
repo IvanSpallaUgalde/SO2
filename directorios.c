@@ -305,28 +305,38 @@ int mi_dir(const char *camino, char *buffer)
         return num_entradas;
 
     }
-
 }
 
 int mi_chmod(const char *camino, unsigned char permisos)
 {
-    //buscar_entrada(camino,);
-
-    struct inodo inodo;
-    if (leer_inodo(/*ninodo*/, &inodo) == FALLO)
+    unsigned int p_inodo = 0, p_entrada = 0, p_inodo_dir = 0;
+    int error;
+    if ((error = buscar_entrada(camino, &p_inodo_dir, &p_inodo, &p_entrada, 0, permisos)) < 0)
     {
-        fprintf(stderr, "Error de lectura de inodo\n");
+        mostrar_error_buscar_entrada(error);
         return FALLO;
     }
-
-    inodo.permisos = permisos;
-    inodo.ctime = time(NULL);
-
-    if(escribir_inodo(/*ninodo*/, &inodo) == FALLO)
+    else
     {
-        fprintf(stderr, "Error de escritura del inodo\n");
-        return FALLO;
+        mi_chmod_f(p_inodo, permisos);
+        return EXITO;
     }
-
-    return EXITO;
 }
+
+int mi_stat(const char *camino, struct STAT *p_stat)
+ {
+    unsigned int p_inodo = 0, p_entrada = 0, p_inodo_dir = 0;
+    int error;
+
+    if ((error = buscar_entrada(camino, &p_inodo_dir, &p_inodo, &p_entrada, 0, p_stat->permisos)) < 0)
+    {
+        mostrar_error_buscar_entrada(error);
+        return FALLO;
+    }
+    else
+    {
+        mi_stat_f(p_inodo,p_stat);
+        return EXITO;
+    }
+    
+ }
