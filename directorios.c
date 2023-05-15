@@ -1,6 +1,9 @@
 #include "directorios.h"
 #include "string.h"
 
+static struct UltimaEntrada UltimaEntradaEscritura;
+static struct UltimaEntrada UltimaEntradaLectura;
+
 //Esta mal 99%
 int extraer_camino(const char *camino, char *inicial, char *final, char *tipo)
 {
@@ -339,4 +342,55 @@ int mi_stat(const char *camino, struct STAT *p_stat)
         return EXITO;
     }
     
+ }
+
+ int mi_write(const char *camino, const void *buf, unsigned int offset, unsigned int nbytes)
+ {
+    unsigned int p_inodo, p_entrada, p_inodo_dir;
+    int error;
+    if(strcmp(UltimaEntradaEscritura.camino, camino) == 0)
+    {
+        p_inodo == UltimaEntradaEscritura.p_inodo;
+    }
+    else
+    {
+        p_inodo_dir = 0;
+        if ((error = buscar_entrada(camino, &p_inodo_dir, &p_inodo, &p_entrada, 0, 6)) < 0)
+        {
+            mostrar_error_buscar_entrada(error);
+            return FALLO;
+        }
+        else
+        {
+            strcpy(UltimaEntradaEscritura.camino, camino);
+            UltimaEntradaEscritura.p_inodo = p_inodo;
+        }
+    }
+
+    return mi_write_f(p_inodo, buf, offset, nbytes);
+ }
+
+ int mi_read(const char *camino, void *buf, unsigned int offset, unsigned int nbytes)
+ {
+    unsigned int p_inodo, p_entrada, p_inodo_dir;
+    int error;
+
+    if (strcmp(UltimaEntradaLectura.camino, camino) == 0)
+    {
+        p_inodo = UltimaEntradaLectura.p_inodo;
+    }
+    else{
+        p_inodo_dir = 0;
+        if ((error = buscar_entrada(camino, &p_inodo_dir, &p_inodo, &p_entrada, 0, 0)) < 0)
+        {
+            mostrar_error_buscar_entrada(error);
+            return FALLO;
+        }
+        else
+        {
+            strcpy(UltimaEntradaLectura.camino, camino);
+            UltimaEntradaLectura.p_inodo = p_inodo;
+        }
+    }
+    return mi_read_f(p_inodo, buf, offset, nbytes);
  }

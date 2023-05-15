@@ -8,18 +8,17 @@ int main(int argc, char const *argv[])
         return FALLO;
     }
 
-    
-    //Montamos disco
-    bmount(argv[1]);
     //Obtenemos los permisos
     int permisos = atoi(argv[2]);
     if(permisos >=0 && permisos <=7)
-    {
-        char ruta[strlen(argv[3])];
-        //Obtenemos la ruta
-        strcpy(ruta,argv[3]);
-        //Cambiamos los permisos
-        mi_chmod(ruta,permisos);
+    {   
+        
+        //Montamos disco
+        if(bmount(argv[1]))
+        {
+            return FALLO;
+        }
+        mi_chmod(argv[3],permisos); //entonces esto ya esta creo
         bumount;
         return EXITO;
     }
