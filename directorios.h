@@ -1,4 +1,3 @@
-#include "ficheros_basico.h"
 #include "ficheros.h"
 
 
